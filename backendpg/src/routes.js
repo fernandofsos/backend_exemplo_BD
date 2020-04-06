@@ -1,39 +1,39 @@
 const express = require('express');
-const knex = require('knex');
-const connection =require('./database/connenction');
+const crypto = require('crypto');
+
+const connection = require('./database/connection');
 
 const routes = express.Router();
-
 
 routes.get('/ongs', async (request,response) =>{
 
     const {nome} = request.query;
     const {id} = request.params;
-
+     
     const ongs = await connection.select()
+                                  .withSchema('medpoint')
                                  .table('ongs');
-                          
-
-    // console.log(id);    
-    // console.log(`Consuta de por query: ${nome}`);
-    // //console.log(`Consuta de por query: ${idade}`);
-    // return response.json({ mensagem: 'Helow word' });
-
     return response.json({ ongs });
 });
 
-routes.post('/user/:id',(request,response) =>{
-
-    const {nome} = request.query;
-    const {id} = request.params;
-    const {sobre,nascimento} = request.body;
-
-
-
-    console.log(id);    
-    console.log(`Consuta de por query: ${nome}`);
-    console.log(`Consuta de por query: ${sobre} ${nascimento}`);
-    return response.json({ mensagem: 'Helow word' });
+routes.post('/ongs',async (request,response) =>{
+   
+  console.log('passou aqui');  
+  const { name, email, whatsapp, city, uf } = request.body;
+   
+   const id = crypto.randomBytes(4).toString('HEX'); 
+   await connection('ongs')
+             .withSchema('medpoint')
+             .insert({
+                     id,
+                     name,
+                     email,
+                     whatsapp,
+                     city,
+                     uf
+                   });
+  
+   return response.json({id});
 });
 
 module.exports = routes
